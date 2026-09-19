@@ -15,6 +15,7 @@ import { calculateDistance, filterCenters, findLocationSuggestions, formatDistan
 import { getRouteDistance, formatRouteDuration, type RouteInfo } from "@/lib/route-distance";
 import { SITE_WHATSAPP_NUMBER } from "@/lib/donation-counter";
 import HeroDonationCounter from "@/components/hero-donation-counter";
+import BloodDrop from "@/components/blood-drop";
 
 const DonationLeafletMap = dynamic(() => import("@/components/donation-leaflet-map"), {
   ssr: false,
@@ -138,7 +139,7 @@ function ReportDialog({ center, open, onOpenChange }: { center: DonationCenter |
   );
 }
 
-function Logo(){return <span className="logo-lockup" aria-label="Gotas que Salvam"><span className="logo-mark" aria-hidden="true"><span className="logo-scale"><i/><b/><i/></span></span><span className="logo-type"><strong>Gotas</strong><small>que salvam</small></span></span>}
+function Logo(){return <span className="logo-lockup" aria-label="Gotas que Salvam"><BloodDrop className="logo-mark"/><span className="logo-type"><strong>Gotas</strong><small>que salvam</small></span></span>}
 
 function Header(){const[open,setOpen]=useState(false);const links=[["Onde doar","#onde-doar"],["Como funciona","#como-funciona"],["Posso doar?","#posso-doar"],["Antes de ir","#antes-de-ir"],["Sobre","#sobre"]];return <header className="site-header"><div className="shell header-inner"><a href="#inicio" className="brand-link"><Logo/></a><nav className="desktop-nav" aria-label="Navegação principal">{links.map(([l,h])=><a key={h} href={h}>{l}</a>)}<a href="/privacidade">Privacidade</a></nav><a className="header-cta" href="#busca">Encontrar onde doar <ArrowRight size={16}/></a><button className="menu-button" onClick={()=>setOpen(!open)} aria-expanded={open} aria-label="Abrir menu">{open?<X/>:<Menu/>}</button></div>{open&&<nav className="mobile-nav">{links.map(([l,h])=><a key={h} href={h} onClick={()=>setOpen(false)}>{l}</a>)}</nav>}</header>}
 
