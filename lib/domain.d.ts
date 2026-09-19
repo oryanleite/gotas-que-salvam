@@ -1,0 +1,10 @@
+import type { DonationCenter } from "./donation-centers";
+import type { LocationReference } from "./locations";
+export type CenterWithDistance=DonationCenter&{distance:number|null};
+export function calculateDistance(lat1:number,lon1:number,lat2:number,lon2:number):number;
+export function formatDistance(distanceKm:number):string;
+export function normalizeText(value:string):string;
+export function normalizeCep(value:string):string|null;
+export function findLocationSuggestions(locations:LocationReference[],query:string,limit?:number):LocationReference[];
+export function isOpenNow(center:DonationCenter,now?:Date):boolean|null;
+export function filterCenters(centers:CenterWithDistance[],filters:{type:string;management:string;maxDistance:number|null;saturday:boolean;sunday:boolean;holiday:boolean;platelets:boolean;onlineAppointment:boolean;noAppointment:boolean}):CenterWithDistance[];

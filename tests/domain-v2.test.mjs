@@ -1,0 +1,12 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { calculateDistance, filterCenters, findLocationSuggestions, formatDistance, normalizeCep } from "../lib/domain.mjs";
+const base={active:true,verificationStatus:"verified",management:"publico",donation:{saturdayService:false,sundayService:false}};
+const centers=[{...base,id:"a",name:"A",type:"hemocentro",distance:2},{...base,id:"b",name:"B",type:"posto_coleta",distance:1}];
+const filters={type:"all",management:"all",maxDistance:null,saturday:false,sunday:false,holiday:false,platelets:false,onlineAppointment:false,noAppointment:false};
+const locations=[{id:"moema",label:"Moema — São Paulo"},{id:"morumbi",label:"Morumbi — São Paulo"},{id:"saude",label:"Saúde — São Paulo"},{id:"alphaville",label:"Alphaville — Barueri"}];
+test("Haversine and formatting",()=>{assert.equal(calculateDistance(-23.5,-46.6,-23.5,-46.6),0);assert.ok(Math.abs(calculateDistance(0,0,1,0)-111.2)<.2);assert.equal(formatDistance(.85),"850 m");assert.equal(formatDistance(2.34),"2,3 km")});
+test("sorts nearest and filters type",()=>{assert.deepEqual(filterCenters(centers,filters).map(c=>c.id),["b","a"]);assert.equal(filterCenters(centers,{...filters,type:"hemocentro"}).length,1)});
+test("autocomplete matches accents and partial terms",()=>{assert.equal(findLocationSuggestions(locations,"Saude")[0].id,"saude");assert.deepEqual(findLocationSuggestions(locations,"mo").map(l=>l.id),["moema","morumbi"]);assert.equal(findLocationSuggestions(locations,"Alph")[0].id,"alphaville")});
+test("CEP accepts hyphenated and plain values",()=>{assert.equal(normalizeCep("01310-100"),"01310100");assert.equal(normalizeCep("01310100"),"01310100");assert.equal(normalizeCep("123"),null)});
+test("invalid location produces no suggestion",()=>assert.equal(findLocationSuggestions(locations,"local inexistente").length,0));
