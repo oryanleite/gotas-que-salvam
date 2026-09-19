@@ -9,7 +9,7 @@
 // Exemplo: se 7 pessoas já confirmaram a doação, deixe assim:
 //   export const CONFIRMED_DONATIONS = 7;
 
-export const CONFIRMED_DONATIONS = 1;
+export const CONFIRMED_DONATIONS = 0;
 
 // Meta inicial do mutirão. Pode subir esse número quando a meta for batida
 // (ex.: de 30 para 60) para manter o desafio vivo.
