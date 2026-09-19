@@ -7,6 +7,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gotas-que-salvam.v
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: SITE_URL, lastModified: new Date("2026-09-01"), changeFrequency: "weekly", priority: 1 },
+    { url: `${SITE_URL}/posso-doar`, lastModified: new Date("2026-09-19"), changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE_URL}/privacidade`, lastModified: new Date("2026-09-01"), changeFrequency: "monthly", priority: 0.5 },
   ];
 }

@@ -1,0 +1,20 @@
+export type QuizAnswers = Record<string, string | string[]>;
+export type QuizOption = { id: string; label: string; exclusive?: boolean };
+export type QuizQuestion = {
+  id: string;
+  title: string;
+  help?: string;
+  list?: string[];
+  type: "single" | "multi";
+  options: QuizOption[];
+  showIf?: (answers: QuizAnswers) => boolean;
+};
+export type ReasonLevel = "nao" | "aguardar" | "avaliar";
+export type QuizReason = { level: ReasonLevel; text: string; wait?: string };
+export type QuizVerdict = "pode" | "avaliar" | "aguardar" | "nao";
+export const QUIZ_SOURCES: { label: string; url: string }[];
+export const QUESTIONS: QuizQuestion[];
+export const NONE_OPTION: string;
+export function visibleQuestions(answers: QuizAnswers): QuizQuestion[];
+export function pruneAnswers(answers: QuizAnswers): QuizAnswers;
+export function evaluate(answers: QuizAnswers): { verdict: QuizVerdict; reasons: QuizReason[]; notes: string[] };
