@@ -18,7 +18,7 @@ function buildDonationMessage(): string {
   ].join("\n");
 }
 
-export default function HeroDonationCounter() {
+export default function HeroDonationCounter({ featured = false }: { featured?: boolean }) {
   const goal = Math.max(1, DONATION_GOAL);
   const confirmed = Math.max(0, Math.min(CONFIRMED_DONATIONS, goal));
   const percent = Math.round((confirmed / goal) * 100);
@@ -59,7 +59,7 @@ export default function HeroDonationCounter() {
   };
 
   return (
-    <div className="donation-counter">
+    <div className={`donation-counter${featured ? " featured" : ""}`}>
       <button
         type="button"
         className={`donation-drop${reached ? " filled" : ""}${bounce ? " bounce" : ""}`}

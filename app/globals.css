@@ -230,3 +230,22 @@ footer{padding:72px 0 28px;background:#271b1b;color:#dacdca}.footer-grid{display
   .quiz-cta{flex-direction:column;align-items:stretch;text-align:center}
 }
 .before-go-card li a{color:inherit;text-decoration:underline;text-underline-offset:2px;font-weight:800}
+
+/* ===== Contador do Mutirão em destaque na hero (lado direito / logo após a busca no celular) ===== */
+.hero-counter{position:relative;display:flex;justify-content:center;align-items:center;min-height:420px}
+.hero-counter:before{content:"";position:absolute;pointer-events:none;width:440px;height:440px;border-radius:50%;background:radial-gradient(circle,rgba(197,42,48,.13),rgba(197,42,48,0) 68%)}
+.donation-counter.featured{position:relative;z-index:1;grid-template-columns:1fr;justify-items:center;gap:18px;width:100%;max-width:420px;margin:0;padding:32px 30px 26px;text-align:center;border:1px solid #f0dcd8;border-top:5px solid #a7161a;border-radius:18px;background:#fff;box-shadow:0 30px 70px rgba(120,40,35,.16)}
+.donation-counter.featured .donation-drop{width:92px;height:108px;margin:0 auto}
+.donation-counter.featured .donation-drop-icon svg{width:30px;height:30px}
+.donation-counter.featured .donation-stats{width:100%}
+.donation-counter.featured .eyebrow{justify-content:center}
+.donation-counter.featured .donation-count{flex-direction:column;align-items:center;gap:4px;margin-top:10px}
+.donation-counter.featured .donation-count strong{font-size:68px}
+.donation-counter.featured .donation-count span{font-size:14px}
+.donation-counter.featured .donation-progress-track{height:10px;margin-top:16px}
+.donation-counter.featured .donation-goal-note{justify-content:center;font-size:12.5px}
+.donation-counter.featured .donation-cta{width:100%}
+.donation-counter.featured .donation-cta button{padding:15px 18px;font-size:14px}
+.donation-counter.featured .donation-cta small{font-size:11px}
+@media(max-width:1023px){.hero-counter{min-height:0;margin-top:40px}.hero-counter:before{width:360px;height:360px}}
+@media(max-width:767px){.hero-counter{margin-top:30px}.donation-counter.featured{padding:26px 20px 22px}.donation-counter.featured .donation-count strong{font-size:58px}}

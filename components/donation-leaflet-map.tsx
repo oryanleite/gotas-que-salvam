@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -37,40 +37,99 @@ const userIcon = L.divIcon({
   popupAnchor: [0, -12],
 });
 
-/** Ajusta o enquadramento do mapa sempre que a lista de locais visíveis ou a
- * localização de referência mudarem (ex.: usuário aplicou um filtro). */
-function FitBounds({
+/** Enquadramento mínimo ao focar um local clicado (nível de rua/bairro). */
+const FOCUS_ZOOM = 15;
+
+function allPoints(centers: CenterWithDistance[], reference: PositionReference | null): [number, number][] {
+  const points: [number, number][] = centers.map((c) => [c.coordinates.latitude, c.coordinates.longitude]);
+  if (reference) points.push([reference.latitude, reference.longitude]);
+  return points;
+}
+
+/**
+ * Controla o enquadramento do mapa:
+ * - mostra todos os locais visíveis quando a lista muda (filtros, nova busca);
+ * - aproxima no local escolhido quando o usuário clica num card ou num pino;
+ * - reajusta o mapa quando ele muda de tamanho — em especial no celular, onde
+ *   o mapa nasce escondido atrás da aba "Lista" (tamanho zero) e só aparece
+ *   ao tocar em "Mapa". Sem esse reajuste o Leaflet acha que o mapa tem 0×0 px
+ *   e desenha todos os pinos fora da área visível.
+ */
+function MapController({
   centers,
   reference,
+  selectedCenter,
 }: {
   centers: CenterWithDistance[];
   reference: PositionReference | null;
+  selectedCenter: CenterWithDistance | undefined;
 }) {
   const map = useMap();
+  // Só aproxima no selecionado depois que o usuário escolheu algum local —
+  // na abertura da página o mapa mostra a região inteira.
+  const userPicked = useRef(false);
+  const firstSelection = useRef(true);
+  const latest = useRef({ centers, reference, selectedCenter });
   useEffect(() => {
-    const points: [number, number][] = centers.map((c) => [
-      c.coordinates.latitude,
-      c.coordinates.longitude,
-    ]);
-    if (reference) points.push([reference.latitude, reference.longitude]);
-    if (points.length === 0) return;
-    if (points.length === 1) {
-      map.setView(points[0], 14);
+    latest.current = { centers, reference, selectedCenter };
+  });
+
+  const frame = () => {
+    const { centers: cs, reference: ref, selectedCenter: sel } = latest.current;
+    const size = map.getSize();
+    if (size.x === 0 || size.y === 0) return; // ainda escondido
+    if (userPicked.current && sel) {
+      map.setView([sel.coordinates.latitude, sel.coordinates.longitude], Math.max(map.getZoom(), FOCUS_ZOOM), { animate: false });
       return;
     }
-    map.fitBounds(L.latLngBounds(points), { padding: [28, 28], maxZoom: 15 });
+    const points = allPoints(cs, ref);
+    if (points.length === 0) return;
+    if (points.length === 1) map.setView(points[0], 14, { animate: false });
+    else map.fitBounds(L.latLngBounds(points), { padding: [28, 28], maxZoom: 15, animate: false });
+  };
+
+  // Lista de locais ou referência mudaram → volta a mostrar todos.
+  useEffect(() => {
+    userPicked.current = false;
+    frame();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [centers, reference]);
-  return null;
-}
 
-/** Centraliza suavemente no local selecionado (clique na lista ou no mapa). */
-function PanToSelected({ center }: { center: CenterWithDistance | undefined }) {
-  const map = useMap();
+  // Usuário escolheu um local → aproxima nele.
   useEffect(() => {
-    if (!center) return;
-    map.panTo([center.coordinates.latitude, center.coordinates.longitude], { animate: true });
-  }, [center, map]);
+    if (firstSelection.current) {
+      firstSelection.current = false;
+      return;
+    }
+    if (!selectedCenter) return;
+    userPicked.current = true;
+    const size = map.getSize();
+    if (size.x === 0 || size.y === 0) return; // mapa escondido: enquadra quando aparecer
+    map.flyTo([selectedCenter.coordinates.latitude, selectedCenter.coordinates.longitude], Math.max(map.getZoom(), FOCUS_ZOOM), { duration: 0.6 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCenter?.id]);
+
+  // Mapa mudou de tamanho (apareceu, girou a tela, redimensionou a janela).
+  useEffect(() => {
+    const container = map.getContainer();
+    let wasHidden = container.clientWidth === 0 || container.clientHeight === 0;
+    const observer = new ResizeObserver(() => {
+      const hidden = container.clientWidth === 0 || container.clientHeight === 0;
+      if (hidden) {
+        wasHidden = true;
+        return;
+      }
+      map.invalidateSize({ animate: false });
+      if (wasHidden) {
+        wasHidden = false;
+        frame();
+      }
+    });
+    observer.observe(container);
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map]);
+
   return null;
 }
 
@@ -107,13 +166,14 @@ export default function DonationLeafletMap({
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors'
         maxZoom={19}
       />
-      <FitBounds centers={centers} reference={reference} />
-      <PanToSelected center={selectedCenter} />
+      <MapController centers={centers} reference={reference} selectedCenter={selectedCenter} />
       {centers.map((c, i) => (
         <Marker
           key={c.id}
           position={[c.coordinates.latitude, c.coordinates.longitude]}
           icon={buildCenterIcon(i, c.id === selected)}
+          // O pino selecionado fica sempre por cima dos vizinhos.
+          zIndexOffset={c.id === selected ? 1000 : 0}
           eventHandlers={{ click: () => onSelect(c.id) }}
         >
           <Popup>
