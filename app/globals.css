@@ -249,3 +249,4 @@ footer{padding:72px 0 28px;background:#271b1b;color:#dacdca}.footer-grid{display
 .donation-counter.featured .donation-cta small{font-size:11px}
 @media(max-width:1023px){.hero-counter{min-height:0;margin-top:40px}.hero-counter:before{width:360px;height:360px}}
 @media(max-width:767px){.hero-counter{margin-top:30px}.donation-counter.featured{padding:26px 20px 22px}.donation-counter.featured .donation-count strong{font-size:58px}}
+.legal-highlight p a{color:#8d1418;font-weight:800;text-decoration:underline;text-underline-offset:2px}
