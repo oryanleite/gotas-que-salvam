@@ -54,5 +54,15 @@
     "vite": "8.0.13"
   },
   "type": "module",
-  "displayName": "Gotas que Salvam"
+  "displayName": "Gotas que Salvam",
+  "browserslist": [
+    "> 0.3%",
+    "not dead",
+    "ios_saf >= 14.5",
+    "safari >= 14.1",
+    "chrome >= 87",
+    "firefox >= 78",
+    "edge >= 88",
+    "samsung >= 13"
+  ]
 }

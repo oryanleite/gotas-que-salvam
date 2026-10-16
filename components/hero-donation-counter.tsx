@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { Droplet, HeartHandshake, MessageCircleHeart, ShieldCheck, Sparkles, Target } from "lucide-react";
 import {
   Dialog,
@@ -24,34 +24,19 @@ export default function HeroDonationCounter({ featured = false }: { featured?: b
   const percent = Math.round((confirmed / goal) * 100);
   const reached = confirmed >= goal;
 
-  const [displayedCount, setDisplayedCount] = useState(0);
-  const [fillPercent, setFillPercent] = useState(0);
   const [bounce, setBounce] = useState(false);
   const [consentOpen, setConsentOpen] = useState(false);
-  const startedRef = useRef(false);
   const whatsappUrl = `https://wa.me/${SITE_WHATSAPP_NUMBER}?text=${encodeURIComponent(buildDonationMessage())}`;
 
-  // Anima a contagem e o preenchimento da gota uma única vez, quando a seção
-  // aparece — a hero já está visível no primeiro carregamento da página.
-  useEffect(() => {
-    if (startedRef.current) return;
-    startedRef.current = true;
-    const fillTimeout = setTimeout(() => setFillPercent(percent), 250);
-    const duration = 1200;
-    const start = performance.now();
-    let frame = 0;
-    const step = (now: number) => {
-      const progress = Math.min(1, (now - start) / duration);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setDisplayedCount(Math.round(eased * confirmed));
-      if (progress < 1) frame = requestAnimationFrame(step);
-    };
-    frame = requestAnimationFrame(step);
-    return () => {
-      clearTimeout(fillTimeout);
-      cancelAnimationFrame(frame);
-    };
-  }, [confirmed, percent]);
+  // O número, a gota e a barra são renderizados já no servidor, sem depender de
+  // JavaScript: se o script falhar no navegador do visitante (celulares antigos,
+  // bloqueadores), o contador continua mostrando o valor certo. A animação de
+  // enchimento é feita só com CSS, a partir da variável --fill.
+  //
+  // Com pelo menos uma doação, a gota recebe um mínimo visível de 8% — abaixo
+  // disso o preenchimento cairia na ponta estreita da base e ficaria invisível.
+  // O número e a barra de progresso continuam exibindo o valor exato.
+  const fillPercent = confirmed > 0 ? Math.max(percent, 8) : 0;
 
   const replayBounce = () => {
     setBounce(true);
@@ -68,7 +53,7 @@ export default function HeroDonationCounter({ featured = false }: { featured?: b
         tabIndex={-1}
       >
         <span className="donation-drop-shape">
-          <span className="donation-drop-fill" style={{ height: `${fillPercent}%` }} />
+          <span className="donation-drop-fill" style={{ "--fill": `${fillPercent}%` } as CSSProperties} />
         </span>
         <span className="donation-drop-icon">
           <Droplet fill="currentColor" />
@@ -81,11 +66,11 @@ export default function HeroDonationCounter({ featured = false }: { featured?: b
           Mutirão da comunidade
         </span>
         <p className="donation-count" aria-live="polite">
-          <strong>{displayedCount}</strong>
+          <strong>{confirmed}</strong>
           <span>de {goal} doações confirmadas</span>
         </p>
         <div className="donation-progress-track">
-          <div className="donation-progress-fill" style={{ width: `${fillPercent}%` }} />
+          <div className="donation-progress-fill" style={{ "--fill": `${percent}%` } as CSSProperties} />
         </div>
         <p className={`donation-goal-note${reached ? " reached" : ""}`}>
           {reached ? (
