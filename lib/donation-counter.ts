@@ -9,11 +9,11 @@
 // Exemplo: se 7 pessoas já confirmaram a doação, deixe assim:
 //   export const CONFIRMED_DONATIONS = 7;
 
-export const CONFIRMED_DONATIONS = 6;
+export const CONFIRMED_DONATIONS = 8;
 
 // Meta inicial do mutirão. Pode subir esse número quando a meta for batida
 // (ex.: de 30 para 60) para manter o desafio vivo.
-export const DONATION_GOAL = 30;
+export const DONATION_GOAL = 20;
 
 // Número de WhatsApp usado tanto para "Informação desatualizada?" quanto
 // para "Contar minha doação". Formato internacional, só dígitos (55 + DDD +
